@@ -12,17 +12,21 @@ export default function Auth() {
 
   async function handleAuth() {
     setLoading(true);
-    if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) Alert.alert('Error', error.message);
-      else router.replace('/(tabs)');
-    } else {
-      const { data, error } = await supabase.auth.signUp({ email, password });
-      if (error) { Alert.alert('Error', error.message); }
-      else if (data.user) {
-        await supabase.from('profiles').insert({ id: data.user.id, username, full_name: username });
-        router.replace('/(tabs)');
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) Alert.alert('Error', error.message);
+        else router.replace('/(tabs)');
+      } else {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) { Alert.alert('Error', error.message); }
+        else if (data.user) {
+          await supabase.from('profiles').insert({ id: data.user.id, username, full_name: username });
+          router.replace('/(tabs)');
+        }
       }
+    } catch (e) {
+      Alert.alert('Connection Error', 'Could not reach the server. Please check your connection and try again.');
     }
     setLoading(false);
   }
